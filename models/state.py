@@ -9,12 +9,13 @@ from models.city import City
 import shlex
 
 
-class State(BaseModel):
+class State(BaseModel, Base):
     """The State class
     Attributes:
         name: input name
     """
 
+    __tablename__ = "states"
     name = Column(String(128), nullable=False)
     cities = relationship("City", cascade='all, delete, delete-orphan',
                           backref="state")
