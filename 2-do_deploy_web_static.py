@@ -23,6 +23,7 @@ an archive to your web servers using the function do_deploy:
 """
 from datetime import datetime
 from fabric.api import *
+import shlex
 import os
 
 
