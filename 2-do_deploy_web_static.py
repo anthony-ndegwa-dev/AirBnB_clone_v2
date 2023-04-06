@@ -21,15 +21,11 @@ an archive to your web servers using the function do_deploy:
     You must use this script to deploy it on your servers:
       xx-web-01 and xx-web-02
 """
-
-from datetime import datetime
 from fabric.api import *
-import shlex
-import os
+import os.path
 
 
-env.hosts = ['34.234.193.7', '54.174.67.136']
-env.user = "ubuntu"
+env.hosts = ['<34.234.193.7>', '<54.174.67.136>']
 
 
 def do_deploy(archive_path):
