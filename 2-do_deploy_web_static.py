@@ -21,6 +21,7 @@ an archive to your web servers using the function do_deploy:
     You must use this script to deploy it on your servers:
       xx-web-01 and xx-web-02
 """
+from datetime import datetime
 from fabric.api import *
 import os.path
 
