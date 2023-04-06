@@ -23,7 +23,7 @@ an archive to your web servers using the function do_deploy:
 """
 from datetime import datetime
 from fabric.api import *
-import os.path
+import os
 
 
 env.hosts = ['<34.234.193.7>', '<54.174.67.136>']
