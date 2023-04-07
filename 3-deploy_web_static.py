@@ -5,7 +5,7 @@ Prototype function: def deploy():
 The script should:
         Call the do_pack() function and store the path of the created archive
         Return False if no archive has been created
-        Call the do_deploy(archive_path) function, using new path of the new archive
+        Call do_deploy(archive_path) function, using new path of new archive
         Return the return value of do_deploy
 All remote commands must be executed on both servers using env.hosts variable
 You must use this script to deploy it on your servers.
@@ -28,8 +28,9 @@ def do_pack():
         archive_path = "versions/web_static_{}.tgz".format(date_time)
         local("tar -cvzf {} web_static".format(archive_path))
         return archive_path
-    except:
+    except Exception:
         return None
+
 
 def do_deploy(archive_path):
     """Distributes archive to web servers"""
@@ -47,8 +48,9 @@ def do_deploy(archive_path):
         run("rm -rf /data/web_static/current")
         run("ln -s {} /data/web_static/current".format(path))
         return True
-    except:
+    except Exception:
         return False
+
 
 def deploy():
     """Create and distribute archive to web servers"""
