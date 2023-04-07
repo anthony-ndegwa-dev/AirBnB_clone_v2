@@ -15,6 +15,7 @@ from fabric.api import *
 env.hosts = ['<34.234.193.7>', '<54.174.67.136>']
 env.user = 'ubuntu'
 
+
 def do_clean(number=0):
     """ Clean old unnecessary archives """
 
