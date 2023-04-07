@@ -1,62 +1,71 @@
-# Puppet script that configures Nginx server with folders and files
+# Puppet script that sets up your web servers for the deployment of web_static
 
-exec {'update':
-  provider => shell,
-  command  => 'sudo apt-get -y update',
-  before   => Exec['install Nginx'],
+# Install Nginx if not installed
+package { 'nginx':
+  ensure => installed,
 }
 
-exec {'install Nginx':
-  provider => shell,
-  command  => 'sudo apt-get -y install nginx',
-  before   => Exec['start Nginx'],
+# Create /data/web_static/releases/ folder if it doesn’t already exist
+file { '/data/web_static/releases':
+  ensure => directory,
 }
 
-exec {'start Nginx':
-  provider => shell,
-  command  => 'sudo service nginx start',
-  before   => Exec['create first directory'],
+# Create /data/web_static/shared/ folder if it doesn’t already exist
+file { '/data/web_static/shared':
+  ensure => directory,
 }
 
-exec {'create first directory':
-  provider => shell,
-  command  => 'sudo mkdir -p /data/web_static/releases/test/',
-  before   => Exec['create second directory'],
+# Create /data/web_static/releases/test/ folder if it doesn’t already exist
+file { '/data/web_static/releases/test':
+  ensure => directory,
 }
 
-exec {'create second directory':
-  provider => shell,
-  command  => 'sudo mkdir -p /data/web_static/shared/',
-  before   => Exec['content into html'],
-}
-
+# Create a fake HTML file /data/web_static/releases/test/index.html
 exec {'content into html':
   provider => shell,
   command  => 'echo "Holberton School" | sudo tee /data/web_static/releases/test/index.html',
-  before   => Exec['symbolic link'],
 }
 
-exec {'symbolic link':
-  provider => shell,
-  command  => 'sudo ln -sf /data/web_static/releases/test/ /data/web_static/current',
-  before   => Exec['put location'],
+# Create a symbolic link /data/web_static/current linked to the
+# /data/web_static/releases/test/ folder. If the symbolic link already
+# exists, it should be deleted and recreated every time the script is ran.
+file { '/data/web_static/current':
+  ensure => 'link',
+  target => '/data/web_static/releases/test',
+  force  => true,
 }
 
-exec {'put location':
-  provider => shell,
-  command  => 'sudo sed -i \'38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\n\' /etc/nginx/sites-available/default',
-  before   => Exec['restart Nginx'],
-}
-
-exec {'restart Nginx':
-  provider => shell,
-  command  => 'sudo service nginx restart',
-  before   => File['/data/']
-}
-
-file {'/data/':
-  ensure  => directory,
+# Give ownership of the /data/ folder to the ubuntu user AND group (you can
+# assume this user and group exist). This should be recursive; everything
+# inside should be created/owned by this user/group.
+file { '/data':
   owner   => 'ubuntu',
   group   => 'ubuntu',
   recurse => true,
+}
+
+file { '/etc/nginx/sites-available/default':
+  content => "
+server {
+    listen 80;
+    listen [::]:80 default_server;
+    server_name _;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    location /hbnb_static/ {
+        alias /data/web_static/current/;
+        index index.html;
+    }
+}
+",
+  require => Package['nginx'],
+  notify  => Service['nginx'],
+}
+
+# Restart Nginx after updating the configuration
+service { 'nginx':
+  ensure    => running,
+  enable    => true,
+  subscribe => File['/etc/nginx/sites-available/default'],
 }
