@@ -39,6 +39,7 @@ file { '/data/web_static/current':
 # assume this user and group exist). This should be recursive; everything
 # inside should be created/owned by this user/group.
 file { '/data':
+  ensure => 'directory',
   owner   => 'ubuntu',
   group   => 'ubuntu',
   recurse => true,
